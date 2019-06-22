@@ -5,9 +5,11 @@ import (
 	"crypto/md5"
 	"crypto/sha1"
 	"crypto/sha256"
+	"fmt"
 	"hash"
 	"io/ioutil"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -17,6 +19,17 @@ var (
 	dataFileSHA1   = "c447a7b45cc543e1fb2759d57255c4b300c6bf1e"
 	dataFileSHA256 = "535a643ba2af1f027e370b9e74eb0823ea886322ef0c96733e374d7ee334a258"
 )
+
+func ExampleHashReader() {
+	reader := NewHashReader(strings.NewReader("hello I am happy"), map[string]hash.Hash{"sha256": sha256.New()})
+	if _, err := ioutil.ReadAll(reader); err != nil {
+		// handle error
+	}
+
+	fmt.Println(reader.HexHash("sha256"))
+
+	// Output: 1963f25b4f1f410e5702a9bcb2d44a44a43aaea0ef4f946ddb24c1472155a13a
+}
 
 func TestHashReader(t *testing.T) {
 	f, err := os.Open(dataFile)
@@ -46,6 +59,16 @@ func TestHashReader(t *testing.T) {
 	if hash := hr.HexHash("md5"); hash != dataFileMD5 {
 		t.Errorf("HashReader.HexHash(md5) got: %q, wanted %q", hash, dataFileMD5)
 	}
+}
+
+func ExampleHashWriter() {
+	sb := &strings.Builder{}
+	writer := NewHashWriter(sb, map[string]hash.Hash{"sha256": sha256.New()})
+	_, _ = writer.Write([]byte("hello I am happy")) // error checking elided for example
+
+	fmt.Println(writer.HexHash("sha256"))
+
+	// Output: 1963f25b4f1f410e5702a9bcb2d44a44a43aaea0ef4f946ddb24c1472155a13a
 }
 
 func TestHashReaderAndWriter(t *testing.T) {
