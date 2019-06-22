@@ -31,6 +31,31 @@ func ExampleHashReader() {
 	// Output: 1963f25b4f1f410e5702a9bcb2d44a44a43aaea0ef4f946ddb24c1472155a13a
 }
 
+func TestHashReaderWithStdHashes(t *testing.T) {
+	f, err := os.Open(dataFile)
+	if err != nil {
+		t.Fatalf("Unable to open %q: %v", dataFile, err)
+	}
+	defer f.Close()
+
+	hr := NewHashReader(f, StdCryptoHashes())
+	if _, err := ioutil.ReadAll(hr); err != nil {
+		t.Fatalf("ioutil.ReadAll([from: %q]): %v", dataFile, err)
+	}
+
+	if hash := hr.HexHash("sha256"); hash != dataFileSHA256 {
+		t.Errorf("HashReader.HexHash(sha256) got: %q, wanted %q", hash, dataFileSHA256)
+	}
+
+	if hash := hr.HexHash("sha1"); hash != dataFileSHA1 {
+		t.Errorf("HashReader.HexHash(sha1) got: %q, wanted %q", hash, dataFileSHA1)
+	}
+
+	if hash := hr.HexHash("md5"); hash != dataFileMD5 {
+		t.Errorf("HashReader.HexHash(md5) got: %q, wanted %q", hash, dataFileMD5)
+	}
+}
+
 func TestHashReader(t *testing.T) {
 	f, err := os.Open(dataFile)
 	if err != nil {

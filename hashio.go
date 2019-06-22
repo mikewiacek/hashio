@@ -3,10 +3,25 @@
 package hashio
 
 import (
+	"crypto/md5"
+	"crypto/sha1"
+	"crypto/sha256"
 	"fmt"
 	"hash"
 	"io"
 )
+
+// StdCryptoHashes returns a map intended to be passed to NewHashReader or
+// NewHashWriter. It contains the following hashes, "sha256", "sha1", and
+// "md5", with those literal names as keys (without the quotes). It's a
+// function of pure convenience.
+func StdCryptoHashes() map[string]hash.Hash {
+	return map[string]hash.Hash{
+		"sha256": sha256.New(),
+		"sha1":   sha1.New(),
+		"md5":    md5.New(),
+	}
+}
 
 // HashReader implements io.Reader by wrapping a provided io.Reader. It keeps
 // running cryptographic hashes of data written to that provided reader.
